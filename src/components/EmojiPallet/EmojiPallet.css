@@ -1,0 +1,47 @@
+.emoji-picker-react,
+.emoji-categories,
+.emoji-picker-react,
+.active-category-indicator-wrapper {
+  background: rgb(50, 67, 87) !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+.emoji-picker-react div,
+.active-category-indicator-wrapper,
+.active-category-indicator,
+.emoji-search {
+  border: none;
+  outline: none;
+  background: rgb(50, 67, 87);
+  border-color: rgb(68, 87, 109) !important;
+  outline-color: rgb(50, 67, 87) !important;
+  box-shadow: none;
+}
+.emoji-categories {
+  background: rgb(97, 119, 145) !important;
+  border-radius: 4px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+}
+
+body .emoji-picker-react > .emoji-categories > button {
+  color: #fff;
+}
+
+.emoji-search {
+  color: #fff;
+  margin: 1rem 0;
+  position: relative;
+}
+
+.skin-tones-list {
+  top: 34px !important;
+}
+
+.emoji-picker-react .content-wrapper {
+  background: rgb(50, 67, 87) !important;
+  color: #fff !important;
+}
