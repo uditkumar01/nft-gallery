@@ -51,7 +51,6 @@ export function UserProvider({ children }) {
           });
       })();
     }
-    console.log("trigger", trigger);
   }, [isLoggedIn, showLoadingScreen, trigger]);
 
   return (

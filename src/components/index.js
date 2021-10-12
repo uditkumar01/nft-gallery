@@ -18,3 +18,6 @@ export { Card } from "./Card/Card";
 export { ButtonLg } from "./ButtonLg/ButtonLg";
 export { CreateCollectionModal } from "./CreateCollectionModal/CreateCollectionModal";
 export { CardFooterButton } from "./CardFooterButton/CardFooterButton";
+export { CollectionCard } from "./CollectionCard/CollectionCard";
+export { ConnectWalletModal } from "./ConnectWalletModal/ConnectWalletModal";
+export { NftInfoModal } from "./NftInfoModal/NftInfoModal";

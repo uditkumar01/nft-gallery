@@ -13,6 +13,10 @@ export const createUserEntity = async (user) => {
     try {
       await userRef.set({
         uid,
+        username: user?.email
+          ?.split("@")[0]
+          ?.trim()
+          ?.replace(/[^a-zA-Z0-9_]/g, ""),
         displayName,
         email,
         photoURL,

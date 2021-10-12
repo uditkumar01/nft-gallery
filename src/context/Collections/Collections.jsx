@@ -14,6 +14,19 @@ function collectionsReducer(state, action) {
         ...state,
         collections: [...state.collections, action.payload],
       };
+    case "UPDATE_COLLECTION":
+      return {
+        ...state,
+        collections: state.collections.map((collection) => {
+          if (collection._id === action.payload.collectionId) {
+            return {
+              ...collection,
+              items: [...collection.items, action.payload.item],
+            };
+          }
+          return collection;
+        }),
+      };
     default:
       return state;
   }
@@ -57,7 +70,7 @@ export function CollectionsProvider({ children }) {
     } catch (error) {
       console.log(error);
     }
-  }, [isLoggedIn, showLoadingScreen]);
+  }, [isLoggedIn, showLoadingScreen, user]);
   console.log("colState", collectionsState);
   return (
     <CollectionsContext.Provider

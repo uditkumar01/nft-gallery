@@ -1,4 +1,5 @@
 export const cyrb53 = (str, seed = 0) => {
+  console.log(str, seed);
   let h1 = 0xdeadbeef ^ seed,
     h2 = 0x41c6ce57 ^ seed;
   for (let i = 0, ch; i < str.length; i++) {

@@ -20,38 +20,37 @@ import {
   InputRightElement,
   IconButton,
   useToast,
+  Flex,
 } from "@chakra-ui/react";
 import { useRef, useState } from "react";
 import { BiPlus, BiSearch } from "react-icons/bi";
 import useAuth from "../../context/Auth/Auth";
-import useUser from "../../context/User/User";
 import { formatFullName, makeUsernameFromEmail } from "../../utils/formatName";
-import { SearchInput, SideBarLink } from "..";
+import { CardFooterButton, SearchInput, SideBarLink } from "..";
 import { BsCollectionFill } from "react-icons/bs";
 import { useNavigate } from "react-router";
 import { firestore } from "../../Firebase";
 import useCollections from "../../context/Collections/Collections";
 import { cyrb53 } from "../../utils/encryptLabel";
+import { CgFolderAdd } from "react-icons/cg";
 
-function SearchResult({ label, images, _id, onClose }) {
-  const navigate = useNavigate();
+function SearchResult({ label, items, _id, onClose, icon, callback }) {
+  const iconItem = icon && icon(_id);
   console.log(_id, "search");
   return (
     <Button
       variant="unstyled"
       w="full"
       height="90px"
-      borderColor="gray.800"
-      onClick={() => {
-        onClose();
-        // redirecting to user profile
-        navigate(`/collection/${_id}`);
-        // window.location.href = `/account?user=${_id}`;
+      _active={{
+        boxShadow: "none",
       }}
+      _focus={{
+        boxShadow: "none",
+      }}
+      borderColor="gray.800"
     >
-      <HStack
-        spacing={3}
-        dir="row"
+      <Flex
         border="none"
         borderTop="1px solid"
         borderBottom="1px solid"
@@ -59,41 +58,55 @@ function SearchResult({ label, images, _id, onClose }) {
         bg="rgba(0,0,0,0)"
         boxShadow="2xl"
         p="0.7rem 1rem"
+        transition="all 0.2s"
         _hover={{
-          bg: "black.800",
+          bg: "rgba(0,0,0,0.3)",
           cursor: "pointer",
           borderColor: "black.800",
         }}
+        justify="space-between"
       >
-        <Avatar borderRadius="md" name={`${label} collection`} />
-        <Stack spacing={1} justify="flex-start">
-          <Heading color="white" fontSize="1.1rem" textAlign="left" pl="0.2rem">
-            {formatFullName(label || "")}
-          </Heading>
-          <Badge
-            w="min-content"
-            textAlign="left"
-            color="gray.300"
-            textTransform="none"
-            fontWeight="semibold"
-          >
-            {images.length} nfts
-          </Badge>
-        </Stack>
-      </HStack>
+        <HStack spacing={3} dir="row">
+          <Avatar borderRadius="md" name={`${label} collection`} />
+          <Stack spacing={1} justify="flex-start">
+            <Heading
+              color="white"
+              fontSize="1.1rem"
+              textAlign="left"
+              pl="0.2rem"
+            >
+              {formatFullName(label || "")}
+            </Heading>
+            <Badge
+              w="min-content"
+              textAlign="left"
+              color="gray.300"
+              textTransform="none"
+              fontWeight="semibold"
+            >
+              {items?.length} nfts
+            </Badge>
+          </Stack>
+        </HStack>
+        {iconItem && (
+          <IconButton onClick={() => callback(_id)}>{iconItem}</IconButton>
+        )}
+      </Flex>
     </Button>
   );
 }
 
-export function CreateCollectionModal({ navBtn }) {
+export function CreateCollectionModal({ navBtn, icon, callback, footerBtn }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef(null);
-  const { users } = useUser();
   const { authState } = useAuth();
   const { collections, collectionsDispatch } = useCollections();
   const [search, setSearch] = useState("");
   const addCollectionRef = useRef(null);
   const toast = useToast();
+  const navigate = useNavigate();
+
+  console.log(collections, "collections");
 
   async function createCollectionHandler(label) {
     if (label) {
@@ -101,7 +114,9 @@ export function CreateCollectionModal({ navBtn }) {
         // checking if collection already exists
 
         const encodingLabelToHex = cyrb53(
-          Buffer.from(label.toLowerCase().replace(/\s/g, "")).toString("hex")
+          Buffer.from(
+            `${label.toLowerCase().replace(/\s/g, "")}${authState?.user?.email}`
+          ).toString("hex")
         ).toString();
 
         const collectionExists = collections.some(
@@ -122,7 +137,7 @@ export function CreateCollectionModal({ navBtn }) {
 
         const collection = {
           label,
-          images: [],
+          items: [],
           owner: authState?.user?.uid || "",
         };
         // add collection to firestore
@@ -138,6 +153,8 @@ export function CreateCollectionModal({ navBtn }) {
             _id: encodingLabelToHex,
           },
         });
+
+        addCollectionRef.current.value = "";
 
         // onClose();
       } catch (err) {
@@ -155,7 +172,7 @@ export function CreateCollectionModal({ navBtn }) {
 
   return (
     <DarkMode>
-      {navBtn ? (
+      {navBtn && (
         <Box as="button" textAlign="left" onClick={onOpen}>
           <SideBarLink
             display={{ base: "block", lg: "none" }}
@@ -163,10 +180,17 @@ export function CreateCollectionModal({ navBtn }) {
             label="Collections"
           />
         </Box>
-      ) : (
-        <Box as="button" textAlign="left" onClick={onOpen}>
-          <SearchInput />
-        </Box>
+      )}
+      {footerBtn && (
+        <CardFooterButton
+          btnProps={{
+            borderRight: "1px solid",
+            borderLeft: "1px solid",
+            borderColor: "rgba(255, 255, 255, 0.06)",
+          }}
+          callback={onOpen}
+          icon={<CgFolderAdd fontSize="1.25rem" color="#ffffff" />}
+        />
       )}
 
       <Modal
@@ -211,6 +235,8 @@ export function CreateCollectionModal({ navBtn }) {
                   <SearchResult
                     key={userItem.uid}
                     {...userItem}
+                    icon={icon}
+                    callback={callback}
                     onClose={onClose}
                   />
                 );
@@ -235,7 +261,6 @@ export function CreateCollectionModal({ navBtn }) {
               <InputRightElement color="gray.300" fontSize="1.2em">
                 <IconButton
                   onClick={() => {
-                    console.log("add collection");
                     createCollectionHandler(
                       addCollectionRef?.current?.value || ""
                     );

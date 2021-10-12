@@ -5,12 +5,12 @@
   position: absolute;
   width: 50px;
   height: 100px;
-  background: #171923;
-  opacity: 0.5;
+  /* background: #171923; */
+  opacity: 1;
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
-  box-shadow: 16px 16px 32px #1c1e25, -16px -16px 32px #050508;
+  /* box-shadow: 16px 16px 32px #1c1e25, -16px -16px 32px #050508; */
   filter: hue-rotate(180deg) drop-shadow(16px 16px 32px #1c1e25),
     drop-shadow(-16px -16px 32px #050508);
   -webkit-filter: hue-rotate(180deg) drop-shadow(16px 16px 32px #1c1e25),

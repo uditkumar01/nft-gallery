@@ -9,21 +9,27 @@ import { AuthProvider } from "./context/Auth/Auth";
 import { PostProvider } from "./context/Post/Post";
 import { UserProvider } from "./context/User/User";
 import { CollectionsProvider } from "./context/Collections/Collections";
+import { NftsProvider } from "./context/NFTs/NFTs";
+import { Web3UtilityProvider } from "./context/Web3/Web3";
 
 ReactDOM.render(
   <React.StrictMode>
     <Router>
-      <ChakraProvider>
-        <AuthProvider>
-          <CollectionsProvider>
-            <UserProvider>
-              <PostProvider>
-                <App />
-              </PostProvider>
-            </UserProvider>
-          </CollectionsProvider>
-        </AuthProvider>
-      </ChakraProvider>
+      <AuthProvider>
+        <CollectionsProvider>
+          <UserProvider>
+            <PostProvider>
+              <NftsProvider>
+                <Web3UtilityProvider>
+                  <ChakraProvider>
+                    <App />
+                  </ChakraProvider>
+                </Web3UtilityProvider>
+              </NftsProvider>
+            </PostProvider>
+          </UserProvider>
+        </CollectionsProvider>
+      </AuthProvider>
     </Router>
   </React.StrictMode>,
   document.getElementById("root")

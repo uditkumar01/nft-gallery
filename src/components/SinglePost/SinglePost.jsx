@@ -212,9 +212,10 @@ export function SinglePost({ post, uid, createdAt, user, likes }) {
       >
         <Flex>
           <Avatar
-            onClick={() => navigate(`/account?user=${user.uid}`)}
+            onClick={() => navigate(`/account/${user?.username}`)}
             name={formatFullName(user?.displayName || "")}
             src={user?.photoURL}
+            loading="lazy"
           />
           <Stack
             direction={{ base: "column", lg: "row" }}
@@ -254,7 +255,7 @@ export function SinglePost({ post, uid, createdAt, user, likes }) {
                 overflow="hidden"
               />
               <Text pos="relative" zIndex={1} color="blackAlpha.700">
-                @{makeUsernameFromEmail(user?.email || "")}
+                @{user?.username || ""}
               </Text>
             </Text>
           </Stack>
@@ -298,7 +299,7 @@ export function SinglePost({ post, uid, createdAt, user, likes }) {
                 overflow="hidden"
               />
               <Text d="block" pos="relative" zIndex={1} color="blackAlpha.700">
-                @{makeUsernameFromEmail(user?.email || "")}
+                @{user?.username || ""}
               </Text>
             </Text>
           </Stack>

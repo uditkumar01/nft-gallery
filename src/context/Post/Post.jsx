@@ -49,7 +49,7 @@ export function PostProvider({ children }) {
                       uid: user?.uid,
                       displayName: user?.displayName,
                       photoURL: user?.photoURL,
-                      email: user?.email,
+                      username: user?.username,
                       followers: user?.followers,
                       following: user?.following,
                     },

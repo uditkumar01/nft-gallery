@@ -8,11 +8,13 @@ import {
   Stack,
   Text,
   Badge,
+  Divider,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { FiEdit, FiUserPlus } from "react-icons/fi";
 import Stories from "react-insta-stories";
 import useAuth from "../../context/Auth/Auth";
+import useCollections from "../../context/Collections/Collections";
 import usePost from "../../context/Post/Post";
 import useUser from "../../context/User/User";
 import { firestore } from "../../Firebase";
@@ -23,20 +25,39 @@ export function ProfileSideBar({ user }) {
   const { authState, authDispatch } = useAuth();
   const { posts } = usePost();
   const { setTrigger } = useUser();
+  const { collections } = useCollections();
   const userPosts = posts.filter((post) => post?.user?.uid === user?.uid);
   const [follow, setFollow] = useState(false);
   const toast = useToast();
-  const stories = [
+  const [collectionImages, setCollectionImages] = useState([
     "https://images.unsplash.com/photo-1531297484001-80022131f5a1?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8d2ViJTIwd2FsbHBhcGVyfGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80",
     "https://images.unsplash.com/photo-1452421822248-d4c2b47f0c81?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8d2ViJTIwd2FsbHBhcGVyfGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80",
     "https://images.unsplash.com/photo-1622737133809-d95047b9e673?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Nnx8d2ViJTIwd2FsbHBhcGVyfGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80",
     "https://i2.wp.com/www.smartprix.com/bytes/wp-content/uploads/2018/02/Webp.net-resizeimage-4.jpg?ssl=1",
-  ];
+  ]);
 
   useEffect(() => {
     const alreadyFollowed = authState?.user?.following?.includes(user?.uid);
     setFollow(alreadyFollowed);
-  }, [authState]);
+  }, [authState, user?.uid]);
+
+  useEffect(() => {
+    async function getUserCollection() {
+      console.log("getUserCollection", user);
+      if (user?.pinnedCollection) {
+        const userCollection = await firestore()
+          .collection("collections")
+          .doc(user?.pinnedCollection)
+          .get();
+        if (userCollection?.exists) {
+          const collectionItem = userCollection.data();
+          const collectionImages = collectionItem?.items;
+          collectionItem && setCollectionImages(collectionImages);
+        }
+      }
+    }
+    getUserCollection();
+  }, [user]);
 
   async function followHandler() {
     try {
@@ -153,9 +174,9 @@ export function ProfileSideBar({ user }) {
       >
         <Box pos="absolute" rounded="md" overflow="hidden">
           <Stories
-            stories={stories}
+            stories={collectionImages}
             defaultInterval={5000}
-            width={"100%"}
+            width={450}
             height={200}
             loop={true}
           />
@@ -167,6 +188,7 @@ export function ProfileSideBar({ user }) {
             showBorder
             w="80px"
             h="80px"
+            loading="lazy"
             src={user?.photoURL}
             name={formatFullName(`${user?.displayName}` || "")}
           />
@@ -239,7 +261,7 @@ export function ProfileSideBar({ user }) {
         )}
       </Flex>
       <Stack spacing={0} color="gray.50" pt="3rem" pl="0.5rem">
-        <Text fontSize="md" fontWeight="600">
+        <Text fontSize="md" fontWeight="600" pb={1}>
           {formatFullName(user?.displayName || "")}
         </Text>
         <Text
@@ -254,6 +276,7 @@ export function ProfileSideBar({ user }) {
           pos="relative"
           bg="transparent"
           w="fit-content"
+          border="1px solid rgba(255, 255, 255, 0.2)"
         >
           <Box
             pos="absolute"
@@ -261,12 +284,12 @@ export function ProfileSideBar({ user }) {
             left="0"
             w="100%"
             height="100%"
-            background="rgba(255,255,255,0.3)"
+            background="rgba(255,255,255,0.35)"
             className="bg-blur"
             zIndex={-1}
             overflow="hidden"
           />
-          @{makeUsernameFromEmail(user?.email || "")}
+          @{user?.username || ""}
         </Text>
       </Stack>
       <SimpleGrid columns={2} gridGap={4} p="1rem" color="gray.400">

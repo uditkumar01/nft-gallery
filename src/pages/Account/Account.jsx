@@ -1,4 +1,4 @@
-import { Flex, SimpleGrid, Box, Stack } from "@chakra-ui/react";
+import { Flex, Box, Stack, Heading } from "@chakra-ui/react";
 import {
   ProfileSideBar,
   PostingAreaShell,
@@ -12,59 +12,59 @@ import "./Account.css";
 import { useMobileMenuState } from "../../hooks/useMobileMenuState";
 import useAuth from "../../context/Auth/Auth";
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router";
-import { parse } from "query-string";
+import { useNavigate, useParams } from "react-router";
 import useUser from "../../context/User/User";
+import useNFTs from "../../context/NFTs/NFTs";
 import { getNftsFromAccountAddress } from "../../api/getNFTS";
 
 export default function Account() {
   const { isOpen, toggle } = useMobileMenuState();
   const { authState, showLoadingScreen } = useAuth();
   const { users } = useUser();
-  const [nfts, setNfts] = useState([]);
+  const { nfts } = useNFTs();
+  const [userNfts, setUserNfts] = useState({
+    ethereum: [],
+    polygon: [],
+    tezos: [],
+  });
   const [user, setUser] = useState(null);
   // getting url query param
-  const { search } = useLocation();
-  const query = parse(search);
+  const { username } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!showLoadingScreen && !authState?.isLoggedIn) {
-      window.location.href = "/";
+      navigate("/");
     }
-  }, [showLoadingScreen, authState]);
-
-  const account = "0x4c8f93d95354ecf0b54222be4c4e8fb37ba8f3bc";
+  }, [showLoadingScreen, authState, navigate]);
 
   useEffect(() => {
     // getting user data from user id from firestore
     (async () => {
-      if (query.user) {
+      if (username) {
         // finding user in users using uid
-        const user = users.find((user) => user.uid === query.user);
+        const user = users.find((user) => user?.username === username);
         setUser(user);
+        let totalNfts = [];
+        for (const ethAddress of user?.ethAddresses || []) {
+          const { nfts } = await getNftsFromAccountAddress(ethAddress);
+          totalNfts.push(...nfts);
+        }
+        setUserNfts((prev) => ({
+          ...prev,
+          ethereum: totalNfts,
+        }));
       } else {
         setUser(authState?.user);
+        setUserNfts(nfts);
       }
     })();
-  }, [authState?.user, query.user, users]);
+  }, [authState?.user, nfts, username, users]);
 
-  useEffect(() => {
-    // getting user nfts
-    (async () => {
-      if (user) {
-        try {
-          const res = await getNftsFromAccountAddress(account);
-          if (res?.nfts) {
-            setNfts(res.nfts);
-          }
-        } catch (error) {
-          console.log(error);
-        }
-      }
-    })();
-  }, [user]);
+  const totalNFTCount =
+    Object.values(userNfts).reduce((acc, curr) => acc + curr.length, 0) || 0;
 
-  console.log({ nfts });
+  console.log(user, "user in account", userNfts, totalNFTCount);
 
   return (
     <Box bg="#171923" w="100vw" h="100vh" pos="relative">
@@ -103,30 +103,69 @@ export default function Account() {
         </Flex>
         <Flex flex="1" overflow="auto" px={{ base: "3", lg: "3" }}>
           <Stack flex="1" mt="1rem" d="block" maxW="1000px" align="center">
-            <Box
-              columns={3}
-              d="grid"
-              gridTemplateColumns="repeat( auto-fit, minmax(250px, 1fr))"
-              gridGap={{
-                base: "0.2rem",
-                sm: "0.4rem",
-                md: "0.6rem",
-                lg: "0.8rem",
-                xl: "1rem",
-              }}
-              placeContent="center"
-            >
-              {nfts?.map(({ asset_url, name, token_id }, i) => {
-                return (
-                  <Card
-                    key={`nft-${i}`}
-                    url={asset_url}
-                    name={name}
-                    index={token_id}
-                  />
-                );
-              })}
-            </Box>
+            {userNfts && totalNFTCount ? (
+              <Box
+                columns={3}
+                d="grid"
+                gridTemplateColumns="repeat( auto-fit, minmax(250px, 1fr))"
+                gridGap={{
+                  base: "0.2rem",
+                  sm: "0.4rem",
+                  md: "0.6rem",
+                  lg: "0.8rem",
+                  xl: "1rem",
+                }}
+                placeContent="center"
+              >
+                {Object.values(userNfts)?.map((chainNfts, i) => {
+                  return chainNfts?.map(
+                    ({ asset_url, name, token_id, ...rest }, j) => {
+                      return (
+                        <Card
+                          key={`nft-${i}-${j}-${token_id}- ${name}`}
+                          url={asset_url}
+                          name={name}
+                          userAddress={user?.ethAddresses[0]}
+                          index={token_id}
+                          {...rest}
+                        />
+                      );
+                    }
+                  );
+                })}
+              </Box>
+            ) : (
+              <Stack
+                pos="relative"
+                zIndex="1"
+                flexDir="column"
+                align="center"
+                justify="center"
+                textAlign="center"
+                spacing={[4, 4, 6, 8, 12]}
+                p={{ base: "2rem 0rem", md: "4rem 0rem" }}
+                rounded="2xl"
+                w="full"
+                maxW="1300px"
+                overflow="hidden"
+                bg="rgba(0,0,0,0.3)"
+                boxShadow="0 2px 6px rgba(0,0,0,0.3), inset 0 1px rgba(255,255,255,0.2), inset 0 10px rgba(255,255,255,0.1), inset 0 10px 20px rgba(255,255,255,0.3), inset 0 -15px 30px rgba(0,0,0,0.3)"
+              >
+                <Heading
+                  className="ml10"
+                  textAlign="center"
+                  color="whiteAlpha.900"
+                  fontSize={{ base: "xl", md: "3xl" }}
+                >
+                  {(authState?.user?.username === username
+                    ? authState?.user
+                    : user
+                  )?.ethAddresses
+                    ? "No NFTs found"
+                    : "Wallet not connected"}
+                </Heading>
+              </Stack>
+            )}
           </Stack>
           <Flex
             flex="1"
@@ -137,7 +176,11 @@ export default function Account() {
             pos="sticky"
             top="0"
             right="0"
-            d={{ base: "none", xl: "flex" }}
+            d={
+              !showLoadingScreen && !authState?.isLoggedIn
+                ? "none"
+                : { base: "none", xl: "flex" }
+            }
             pt="2rem"
           >
             <ScrollArea w="full" pt="5" pb="6">

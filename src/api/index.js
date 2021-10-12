@@ -3,14 +3,21 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const url = `https://api.nftport.xyz`;
+const nftPortBaseUrl = `https://api.nftport.xyz`;
+const moralisPortBaseUrl = `https://deep-index.moralis.io/api/v2`;
 
-const AUTH_KEY = process.env.REACT_APP_NFT_PORT_KEY;
-
-export const axiosInstance = axios.create({
-  baseURL: url,
+export const nftPortInstance = axios.create({
+  baseURL: nftPortBaseUrl,
   headers: {
     "Content-Type": "application/json",
-    Authorization: AUTH_KEY,
+    Authorization: process.env.REACT_APP_NFT_PORT_KEY,
+  },
+});
+
+export const moralisPortInstance = axios.create({
+  baseURL: moralisPortBaseUrl,
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: process.env.REACT_APP_MORALIS_API_KEY,
   },
 });

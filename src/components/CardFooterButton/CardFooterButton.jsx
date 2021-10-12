@@ -1,6 +1,12 @@
 import { Button, chakra, Text, Box } from "@chakra-ui/react";
 
-export function CardFooterButton({ callback, text, icon, btnProps }) {
+export function CardFooterButton({
+  callback,
+  text,
+  icon,
+  btnProps,
+  isDisabled,
+}) {
   return (
     <Button
       flex={1}
@@ -14,6 +20,7 @@ export function CardFooterButton({ callback, text, icon, btnProps }) {
       className="post-btn"
       transition="all 0.2s"
       onClick={callback}
+      isDisabled={isDisabled}
       {...btnProps}
     >
       <Box

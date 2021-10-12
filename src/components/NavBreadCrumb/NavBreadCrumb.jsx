@@ -15,7 +15,7 @@ export const NavBreadCrumb = ({ crumbs }) => (
       separator={
         <Box
           as={HiChevronRight}
-          color="gray.400"
+          color="gray.300"
           fontSize="md"
           top="2px"
           pos="relative"
@@ -23,7 +23,7 @@ export const NavBreadCrumb = ({ crumbs }) => (
       }
     >
       {crumbs.map((item) => (
-        <BreadcrumbItem key={item?.name} color="inherit" isCurrentPage>
+        <BreadcrumbItem key={item?.name} color="whiteAlpha.600" isCurrentPage>
           <BreadcrumbLink textDecoration="none !important" fontSize="1rem">
             {item?.name}
           </BreadcrumbLink>

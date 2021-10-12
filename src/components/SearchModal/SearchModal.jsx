@@ -27,7 +27,7 @@ import { SearchInput, SideBarLink } from "..";
 import { BsSearch } from "react-icons/bs";
 import { useNavigate } from "react-router";
 
-function SearchResult({ photoURL, displayName, email, uid, onClose }) {
+function SearchResult({ photoURL, displayName, username, uid, onClose }) {
   const navigate = useNavigate();
   console.log(uid, "search");
   return (
@@ -39,7 +39,7 @@ function SearchResult({ photoURL, displayName, email, uid, onClose }) {
       onClick={() => {
         onClose();
         // redirecting to user profile
-        navigate(`/account?user=${uid}`);
+        navigate(`/account/${username}`);
         // window.location.href = `/account?user=${uid}`;
       }}
     >
@@ -73,7 +73,7 @@ function SearchResult({ photoURL, displayName, email, uid, onClose }) {
             textTransform="none"
             fontWeight="semibold"
           >
-            @{makeUsernameFromEmail(email)}
+            @{username || ""}
           </Badge>
         </Stack>
       </HStack>

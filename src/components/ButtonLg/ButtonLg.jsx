@@ -1,7 +1,7 @@
 import { Button, Text, chakra } from "@chakra-ui/react";
 import { useNavigate } from "react-router";
 
-export function ButtonLg({ label, callback, ...props }) {
+export function ButtonLg({ icon, label, callback, ...props }) {
   const navigate = useNavigate();
   return (
     <Button
@@ -21,11 +21,12 @@ export function ButtonLg({ label, callback, ...props }) {
       bg="rgba(255, 255, 255, 1)"
       color="blackAlpha.700"
       transition="all 0.3s"
+      boxShadow="0px 0px 10px rgba(0, 0, 0, 0.1)"
       _hover={{
         bg: "rgb(255, 255, 255, 0.8)",
         color: "black",
-        transform: "translateY(-1px)",
-        boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
+        boxShadow:
+          "0px 0px 0px 0px rgba(0, 0, 0, 0.2), 0px 0px 0px 10px rgba(0, 0, 0, 0.14), 0px 0px 0px 10px rgba(0, 0, 0, 0.12)",
       }}
       onClick={() => callback && callback()}
       {...props}

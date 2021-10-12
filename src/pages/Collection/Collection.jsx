@@ -1,31 +1,23 @@
-import { Box, Flex, Stack, Divider } from "@chakra-ui/react";
-import { useMobileMenuState } from "../../hooks/useMobileMenuState";
+import { Box, Divider, Flex, Stack } from "@chakra-ui/layout";
 import {
+  Card,
   CreatePostModal,
   MobileMenuButton,
   NavBreadCrumb,
+  PostingAreaShell,
   ProfileSideBar,
   ScrollArea,
   SearchModal,
+  SinglePost,
 } from "../../components";
-import { PostingAreaShell, SinglePost } from "../../components";
 import useAuth from "../../context/Auth/Auth";
-import { useEffect } from "react";
-import usePost from "../../context/Post/Post";
-import { useNavigate } from "react-router";
+import useNFTs from "../../context/NFTs/NFTs";
+import { useMobileMenuState } from "../../hooks/useMobileMenuState";
 
-export default function Home() {
+export function Collection() {
   const { isOpen, toggle } = useMobileMenuState();
-  const { posts } = usePost();
-  const { authState, showLoadingScreen } = useAuth();
-  const postsLen = posts.length;
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!showLoadingScreen && !authState?.isLoggedIn) {
-      navigate("/");
-    }
-  }, [authState, navigate, showLoadingScreen]);
+  const { authState } = useAuth();
+  const { nfts } = useNFTs();
   return (
     <Box bg="#171923" w="100vw" h="100vh" pos="relative">
       <Box
@@ -51,31 +43,44 @@ export default function Home() {
             <MobileMenuButton onClick={toggle} isOpen={isOpen} />
           </Flex>
           <Flex flex="1" align="center" minH="8">
-            <NavBreadCrumb crumbs={[{ name: "Home", href: "/" }]} />
+            <NavBreadCrumb
+              crumbs={[
+                { name: "Home", href: "/home" },
+                { name: "Account", href: "/account" },
+              ]}
+            />
           </Flex>
 
           <SearchModal />
         </Flex>
-        <Flex flex="1" overflow="auto" px={{ base: "3", lg: "10" }}>
-          <Stack flex="1" mt="2rem" maxW="1000px" align="center">
-            <CreatePostModal />
-            <Stack p="2rem 0" spacing={0} w="full" maxW="800px">
-              {posts.map((post, index) => {
-                return (
-                  <Box key={`single-post-${index}`}>
-                    <SinglePost {...post} />
-                    {index !== postsLen - 1 && (
-                      <Divider
-                        borderColor="rgba(255, 255, 255, 0.125)"
-                        my={3}
-                      />
-                    )}
-                  </Box>
-                );
+        <Flex flex="1" overflow="auto" px={{ base: "3", lg: "3" }}>
+          <Stack flex="1" mt="1rem" d="block" maxW="1000px" align="center">
+            <Box
+              columns={3}
+              d="grid"
+              gridTemplateColumns="repeat( auto-fit, minmax(250px, 1fr))"
+              gridGap={{
+                base: "0.2rem",
+                sm: "0.4rem",
+                md: "0.6rem",
+                lg: "0.8rem",
+                xl: "1rem",
+              }}
+              placeContent="center"
+            >
+              {Object.values(nfts)?.map((chainNfts, i) => {
+                return chainNfts?.map(({ asset_url, name, token_id }, j) => {
+                  return (
+                    <Card
+                      key={`nft-collection-item-${i}-${token_id}- ${name}`}
+                      url={asset_url}
+                      name={name}
+                      index={token_id}
+                    />
+                  );
+                });
               })}
-              {/* <Divider borderColor="gray.700" />
-              <SinglePost /> */}
-            </Stack>
+            </Box>
           </Stack>
           <Flex
             flex="1"
